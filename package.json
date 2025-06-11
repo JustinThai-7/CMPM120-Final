@@ -7,6 +7,7 @@
     "lib": "lib"
   },
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,5 +20,11 @@
   "bugs": {
     "url": "https://github.com/JustinThai-7/CMPM120-Final/issues"
   },
-  "homepage": "https://github.com/JustinThai-7/CMPM120-Final#readme"
+  "homepage": "https://github.com/JustinThai-7/CMPM120-Final#readme",
+  "dependencies": {
+    "@langchain/core": "^0.3.57",
+    "@langchain/openai": "^0.5.12",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0"
+  }
 }

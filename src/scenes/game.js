@@ -26,27 +26,43 @@ class GameScene extends Phaser.Scene {
         this.load.audio('blip', 'assets/blipselect.wav');
     }
 
-    create() {
-        this.generateSequence();
-        this.createGrid();
-        
-        this.scoreText = this.add.text(this.cameras.main.width - 10, 10, 'Score: 0', {
-            fontSize: '24px',
-            color: '#000000'
-        }).setOrigin(1, 0);
-        
-        this.roundText = this.add.text(this.cameras.main.centerX, 30, 'Round: 1', {
-            fontSize: '24px',
-            color: '#000000'
-        }).setOrigin(0.5);
+    async create() {
+        try {
+            await this.generateSequence();
+            this.createGrid();
 
-        this.time.delayedCall(1000, () => this.startRound());
+            this.scoreText = this.add.text(this.cameras.main.width - 10, 10, 'Score: 0', {
+                fontSize: '24px',
+                color: '#000000'
+            }).setOrigin(1, 0);
+            
+            this.roundText = this.add.text(this.cameras.main.centerX, 30, 'Round: 1', {
+                fontSize: '24px',
+                color: '#000000'
+            }).setOrigin(0.5);
+
+            this.time.delayedCall(1000, () => this.startRound());
+        } catch (error) {
+            console.error("Failed to start game:", error);
+            // Optionally, display an error to the user on the screen
+            this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, 'Error: Could not load sequence.', {
+                fontSize: '24px',
+                color: '#ff0000'
+            }).setOrigin(0.5);
+        }
     }
 
-    generateSequence() {
-        this.sequence = [];
-        for (let i = 0; i < 50; i++) {
-            this.sequence.push(Phaser.Math.Between(1, this.difficulty.gridSize * this.difficulty.gridSize));
+    async generateSequence() {
+        try {
+            const response = await fetch(`/generate-sequence?gridSize=${this.difficulty.gridSize}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            this.sequence = data.sequence.split('').map(Number); // Convert string of numbers to array of numbers
+        } catch (error) {
+            console.error("Could not fetch sequence:", error);
+            throw error; // Re-throw to be caught by create()
         }
     }
 
