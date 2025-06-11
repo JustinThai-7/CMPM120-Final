@@ -6,7 +6,7 @@ class MainMenu extends Phaser.Scene {
     create() {
         // Add background and title
         this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000000).setOrigin(0);
-        this.add.text(this.cameras.main.centerX, 100, 'My Game', {
+        this.add.text(this.cameras.main.centerX, 100, 'Memory Marathon', {
             fontSize: '48px',
             color: '#ffffff'
         }).setOrigin(0.5);
