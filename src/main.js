@@ -3,7 +3,7 @@ const config = {
     width: 800,
     height: 600,
     backgroundColor: '#ffffff',
-    scene: [MainMenu, GameScene, ControlsScene, CreditsScene],
+    scene: [MainMenu, GameScene, ControlsScene, CreditsScene, GameOverScene, DifficultyScene],
     physics: {
         default: 'arcade',
         arcade: {

@@ -27,8 +27,16 @@ class MainMenu extends Phaser.Scene {
             .on('pointerout', () => playButton.setStyle({ backgroundColor: '#4a4a4a' }))
             .on('pointerdown', () => this.scene.start('GameScene'));
 
+        // Difficulty button
+        const difficultyButton = this.add.text(this.cameras.main.centerX, 325, 'Difficulty', buttonStyle)
+            .setOrigin(0.5)
+            .setInteractive({ useHandCursor: true })
+            .on('pointerover', () => difficultyButton.setStyle({ backgroundColor: '#666666' }))
+            .on('pointerout', () => difficultyButton.setStyle({ backgroundColor: '#4a4a4a' }))
+            .on('pointerdown', () => this.scene.start('DifficultyScene'));
+
         // Controls button
-        const controlsButton = this.add.text(this.cameras.main.centerX, 350, 'Controls', buttonStyle)
+        const controlsButton = this.add.text(this.cameras.main.centerX, 400, 'Controls', buttonStyle)
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true })
             .on('pointerover', () => controlsButton.setStyle({ backgroundColor: '#666666' }))
@@ -36,7 +44,7 @@ class MainMenu extends Phaser.Scene {
             .on('pointerdown', () => this.scene.start('ControlsScene'));
 
         // Credits button
-        const creditsButton = this.add.text(this.cameras.main.centerX, 450, 'Credits', buttonStyle)
+        const creditsButton = this.add.text(this.cameras.main.centerX, 475, 'Credits', buttonStyle)
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true })
             .on('pointerover', () => creditsButton.setStyle({ backgroundColor: '#666666' }))
