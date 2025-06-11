@@ -125,7 +125,8 @@ class GameScene extends Phaser.Scene {
     }
     
     showPattern() {
-        const patternLength = this.round * this.difficulty.numbersPerRound;
+        // Calculate pattern length by adding numbersPerRound each round
+        const patternLength = this.difficulty.numbersPerRound + ((this.round - 1) * this.difficulty.numbersPerRound);
         const pattern = this.sequence.slice(0, patternLength);
         console.log('Current pattern:', pattern);
         console.log('Pattern length:', patternLength);
@@ -158,7 +159,8 @@ class GameScene extends Phaser.Scene {
     handlePlayerInput(index) {
         if (!this.playerTurn) return;
 
-        const patternLength = this.round * this.difficulty.numbersPerRound;
+        // Use the same pattern length calculation as showPattern
+        const patternLength = this.difficulty.numbersPerRound + ((this.round - 1) * this.difficulty.numbersPerRound);
         const correctIndex = this.sequence[this.playerInput.length] - 1;
 
         if (index === correctIndex) {
