@@ -10,6 +10,7 @@ class GameScene extends Phaser.Scene {
         this.scoreText = null;
         this.roundText = null;
         this.difficulty = {};
+        this.loadingText = null;
     }
 
     init() {
@@ -27,8 +28,18 @@ class GameScene extends Phaser.Scene {
     }
 
     async create() {
+        // Display loading text
+        this.loadingText = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, 'Loading sequence...', {
+            fontSize: '32px',
+            color: '#000000',
+            backgroundColor: '#ffffff',
+            padding: { x: 20, y: 10 }
+        }).setOrigin(0.5);
+
         try {
             await this.generateSequence();
+            this.loadingText.destroy();
+            
             this.createGrid();
 
             this.scoreText = this.add.text(this.cameras.main.width - 10, 10, 'Score: 0', {
@@ -44,11 +55,14 @@ class GameScene extends Phaser.Scene {
             this.time.delayedCall(1000, () => this.startRound());
         } catch (error) {
             console.error("Failed to start game:", error);
-            // Optionally, display an error to the user on the screen
-            this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, 'Error: Could not load sequence.', {
-                fontSize: '24px',
-                color: '#ff0000'
-            }).setOrigin(0.5);
+            // Update loading text to show error
+            if (this.loadingText) {
+                this.loadingText.setText('Error: Could not load sequence.\nPlease refresh to try again.')
+                    .setStyle({ 
+                        color: '#ff0000',
+                        align: 'center'
+                    });
+            }
         }
     }
 
@@ -59,10 +73,24 @@ class GameScene extends Phaser.Scene {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            this.sequence = data.sequence.split('').map(Number); // Convert string of numbers to array of numbers
+            // Split the sequence into pairs and parse as numbers
+            this.sequence = [];
+            const str = data.sequence;
+            for (let i = 0; i < str.length; i += 2) {
+                const num = parseInt(str.slice(i, i + 2));
+                if (num > 0 && num <= this.difficulty.gridSize * this.difficulty.gridSize) {
+                    this.sequence.push(num);
+                } else {
+                    // If the number is invalid, generate a valid one
+                    this.sequence.push(Math.floor(Math.random() * (this.difficulty.gridSize * this.difficulty.gridSize)) + 1);
+                }
+            }
+            console.log('Received sequence:', this.sequence);
+            console.log('Grid size:', this.difficulty.gridSize);
+            console.log('Total squares:', this.squares.length);
         } catch (error) {
             console.error("Could not fetch sequence:", error);
-            throw error; // Re-throw to be caught by create()
+            throw error;
         }
     }
 
@@ -99,11 +127,21 @@ class GameScene extends Phaser.Scene {
     showPattern() {
         const patternLength = this.round * this.difficulty.numbersPerRound;
         const pattern = this.sequence.slice(0, patternLength);
+        console.log('Current pattern:', pattern);
+        console.log('Pattern length:', patternLength);
+        console.log('Round:', this.round);
+        console.log('Numbers per round:', this.difficulty.numbersPerRound);
         let delay = 0;
 
         pattern.forEach((squareIndex, i) => {
             this.time.delayedCall(delay, () => {
+                console.log('Accessing square index:', squareIndex - 1);
+                console.log('Available squares:', this.squares.length);
                 const square = this.squares[squareIndex - 1];
+                if (!square) {
+                    console.error('Invalid square index:', squareIndex - 1);
+                    return;
+                }
                 const randomColor = Phaser.Display.Color.RandomRGB().color;
                 square.setFillStyle(randomColor); // Highlight
                 this.time.delayedCall(this.difficulty.displaySpeed * 1000, () => {

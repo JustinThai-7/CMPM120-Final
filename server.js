@@ -21,7 +21,7 @@ const model = new ChatOpenAI({
 });
 
 const sequencePrompt = PromptTemplate.fromTemplate(
-    "Generate a string of 50 random integers, where each integer is between 1 and {max_number}. Do not include any other text, characters, or spaces. Just the numbers."
+    "Generate a string of 70 random integers, where each integer is between 1 and {max_number}. The output should be a single line of numbers with no other text or characters."
 );
 
 const outputParser = new StringOutputParser();
@@ -35,12 +35,38 @@ app.get('/generate-sequence', async (req, res) => {
 
         const response = await sequenceChain.invoke({ max_number: maxNumber });
         
-        const sequence = response.replace(/\D/g, '');
-        if (sequence.length < 50) { // Ensure length is 50
-            throw new Error("Generated sequence was too short.");
+        // Sanitize and validate the response from the AI
+        const sanitizedSequence = response
+            .replace(/\D/g, '') // Remove non-digits
+            .split('')         // Convert to array of chars
+            .map(Number)       // Convert to array of numbers
+            .map(n => {
+                // Convert 0 to a valid number and ensure numbers are in range
+                if (n === 0 || n > maxNumber) {
+                    return (Math.floor(Math.random() * maxNumber) + 1);
+                }
+                return n;
+            }); // Replace invalid numbers with valid ones
+
+        console.log('Grid Size:', gridSize);
+        console.log('Max Number:', maxNumber);
+        console.log('Raw Sequence:', sanitizedSequence);
+
+        if (sanitizedSequence.length < 50) {
+            // If we don't have enough numbers, generate more
+            while (sanitizedSequence.length < 50) {
+                sanitizedSequence.push(Math.floor(Math.random() * maxNumber) + 1);
+            }
         }
 
-        res.json({ sequence: sequence.substring(0, 50) });
+        // Take the first 50 valid numbers and convert back to a string.
+        const finalSequence = sanitizedSequence
+            .slice(0, 50)
+            .map(num => num.toString().padStart(2, '0'))
+            .join('');
+        console.log('Final Sequence:', finalSequence);
+
+        res.json({ sequence: finalSequence });
     } catch (error) {
         console.error("Error generating sequence:", error);
         res.status(500).json({ error: 'Failed to generate sequence' });
